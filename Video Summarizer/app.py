@@ -1,7 +1,7 @@
 import streamlit as st 
-from phi.agent import Agent
-from phi.model.google import Gemini
-from phi.tools.duckduckgo import DuckDuckGo
+from agno.agent import Agent
+from agno.models.google import Gemini
+from agno.tools.duckduckgo import DuckDuckGoTools
 from google.generativeai import upload_file,get_file
 import google.generativeai as genai
 
@@ -35,7 +35,7 @@ def initialize_agent():
     return Agent(
         name="Video AI Summarizer",
         model=Gemini(id="gemini-2.0-flash-exp"),
-        tools=[DuckDuckGo()],
+        tools=[DuckDuckGoTools()],
         markdown=True,
     )
 
@@ -66,11 +66,17 @@ if video_file:
         else:
             try:
                 with st.spinner("Processing video and gathering insights..."):
+                    start_time = time.time()
                     # Upload and process video file
                     processed_video = upload_file(video_path)
-                    while processed_video.state.name == "PROCESSING":
+                    while processed_video.state == "PROCESSING":
                         time.sleep(1)
                         processed_video = get_file(processed_video.name)
+
+                    video_dict = processed_video.to_dict()
+
+                    if not video_dict.get("filepath"):
+                        video_dict["filepath"] = video_path
 
                     # Prompt generation for analysis
                     analysis_prompt = (
@@ -84,11 +90,15 @@ if video_file:
                     )
 
                     # AI agent processing
-                    response = multimodal_Agent.run(analysis_prompt, videos=[processed_video])
+                    response = multimodal_Agent.run(analysis_prompt, videos=[video_dict])
+
+                    end_time = time.time()
+                    elapsed_time = end_time - start_time
 
                 # Display the result
                 st.subheader("Analysis Result")
                 st.markdown(response.content)
+                st.info(f"Time taken for analysis: {elapsed_time:.2f} seconds")
 
             except Exception as error:
                 st.error(f"An error occurred during analysis: {error}")
