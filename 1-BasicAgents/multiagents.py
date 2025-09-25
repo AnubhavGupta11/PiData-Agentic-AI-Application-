@@ -8,6 +8,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+
 os.environ["OPENAI_API_KEY"]=os.getenv("OPENAI_API_KEY")
 os.environ["GROQ_API_KEY"]=os.getenv("GROQ_API_KEY")
 
@@ -41,3 +42,4 @@ agent_team=Agent(
 )
 
 agent_team.print_response("Analyze companies like Tesla,NVDA,Apple and suggest which to buy for long term")
+
