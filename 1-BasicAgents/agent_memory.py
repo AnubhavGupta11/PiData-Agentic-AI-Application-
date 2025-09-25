@@ -8,6 +8,7 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+
 os.environ["OPENAI_API_KEY"]=os.getenv("OPENAI_API_KEY")
 
 agent = Agent(
@@ -37,4 +38,5 @@ if agent.knowledge is not None:
     agent.knowledge.load()
 
 agent.print_response("How do I make chicken and galangal in coconut milk soup", stream=True)
+
 agent.print_response("What is the history of Thai curry?", stream=True)
